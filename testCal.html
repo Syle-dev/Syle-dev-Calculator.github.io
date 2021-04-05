@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Calculator</title>
+	<style type="text/css">
+		
+		.CalBg {
+			height: 600px;
+			width: 400px;
+			background-color: #9d6857;
+			padding: 20px;
+		}
+
+		.CalI {
+			height: 550px;
+			width: 350px;
+			background-color: #255;
+			position: relative;
+			border-radius: 12px 12px 12px 12px;
+			margin-top: 20px;
+		} 
+
+		.screen {
+			height: 50px;
+			width: 300px;
+			display: flex;
+			align-items: flex-end;
+			flex-direction: column;
+			justify-content: space-between;
+			grid-column: 1 / -1; 
+			background-color: #4b6d46;
+			position: relative;
+			top: 30px;
+			padding: 5px;
+			color: white; 
+			font-size: 2.0rem;
+			word-wrap: break-word;
+			word-break: break-all;
+			/*border-radius: 10px 10px 10px 10px;
+			top: 30px;*/
+			/*background-image: linear-gradient(to bottom, white, gray, green);*/
+			border-right: 2px solid black; 
+			border-left: 3px solid black;
+			border-top: 1px solid black; 
+			border-bottom: 1px solid black;  
+		} 
+
+		.output {
+			color: white; 
+			font-size: 1.5rem;
+		}
+
+		.answer {
+			color: white; 
+			font-size: 1.05rem;
+		}
+
+		.input {
+			height: 30px;
+			width: 300px;
+			background-color:#bccd95;
+			position: relative;
+			border-radius: 10px 10px 10px 10px;
+			color: black;
+			font-size: 20px;
+			left: 30px;
+			top: 30px;
+			text-align: right;
+
+
+		} 
+
+		.keys {
+			height: 400px;
+			width: 300px;
+			background-color: #990000;
+			position: relative;
+			top: 70px;
+			border-radius: 2px 2px 2px 2px;
+			
+
+		} 
+
+		.keys>button { width: 50px; height: 40px; 
+            border-radius: 5px;
+            position: relative;
+            top: 30px;
+            left: 5px;
+
+            background-image: linear-gradient(gray, white, white, gray);
+            text-align: center;
+            text-decoration: none;
+            padding: 3px;
+            margin: 5px 10px 25px 5px;
+            cursor: pointer;
+            font-size: 20px;
+          }
+
+
+        .keys>button:hover,active,visited { width: 50px; height: 40px; 
+            border-radius: 5px;
+            position: relative;
+            top: 30px;
+            left: 5px;
+            background-image: linear-gradient(gray, red, red, black);
+            text-align: center;
+            text-decoration: none;
+            padding: 3px;
+            margin: 5px 10px 25px 5px;
+            cursor: pointer;
+            font-size: 20px;
+          }
+	</style>
+</head>
+
+
+<body>
+
+	<div class="CalBg" align="center" id="Calc" >
+		<div class="CalI">
+			
+			<div class="screen" id="zero">
+				
+			</div>
+			
+			<div class="keys"> 
+				<button type="button" data-number value="1">1</button>
+				<button type="button" data-number value="2">2</button>
+				<button type="button" data-number value="3">3</button>
+				<button type="button" data-number value="4">4</button>
+				<button type="button" data-number value="5">5</button>
+				<button type="button" data-number value="6">6</button>
+				<button type="button" data-number value="7">7</button>
+				<button type="button" data-number value="8">8</button>
+				<button type="button" data-number value="9">9</button>
+				<button type="button" data-number value="0">0</button>
+
+				<button type="button" data-number class="decimal" value=".">.</button>
+
+				<button type="button" class="operation" value="-">-</button>
+				<button type="button" class="operation" value="+">+</button>
+				<button type="button" class="operation" value="*">&times</button>
+				<button type="button" class="operation" value="/">&divide</button>
+
+				<button type="button" class="equals" value="=">=</button>
+				<button type="button" class="all-clear" value="all-clear">AC</button>
+				<button type="button" class="delete" value="delete">del</button>
+			</div>
+		</div>
+	</div>
+	
+	<script type="text/javascript">
+
+		           //A calculator object is created with 4 props
+		           //displayUserInput= string that holds user input
+		           //firstOperandStore store 1st operand for evaluation 
+		           //secondOperand if true, accepts 2nd operand; false indicates that
+		             // both(or) 1st operand & operator are empty
+		           //operation prop stores operator
+
+
+		var Calculator = {
+		  displayUserInput: "0",
+		  firstOperandStore: null,
+		  secondOperandWait: false,
+		  operation: null,
+		};
+
+		function updateDisplay() {
+			var displayOnScreen = document.querySelector(".screen");
+			//displayOnScreen.value = Calculator.displayUserInput;
+
+			displayOnScreen.innerHTML = Calculator.displayUserInput;
+			
+		}
+
+		updateDisplay()
+		               //Add eventlistener to calculator keys && set clicked key (event.target)
+		                 //to variable target, therefore target holds the clicked key value
+
+		var keyCal = document.querySelector(".keys")
+		keyCal.addEventListener("click", (event) => {
+			//var { target } = event;
+			//var value = target.value;
+
+			var entry = event.target;
+			var value = event.target.value;
+
+			if (!entry.matches("button")){ // if target does not matches button, do nothing. 
+											//i.e, if space btw buttons is clicked, nothing is done
+				return;
+			}
+			
+			switch (value){
+				case "+" :
+				case "*" :
+				case "-" :
+				case "/" :
+				case "=" :
+				  inputOperation(value);
+				  break;
+				case "." :
+				  inputDecimal(value);
+				  break;
+				case "all-clear":
+				  clearAll();
+				  break;
+				case "delete":
+				  removeLast();
+				  break;
+				default:
+
+				if (Number.isInteger(parseFloat(value))){
+					inputDigit(value);
+				}
+			}
+
+			updateDisplay();	
+		});
+
+							//six calculation functions are created to work with inputs
+							//inputDigit takes digit as argument
+
+		function inputDigit(digit){
+			var {displayUserInput, secondOperandWait} = Calculator;
+			if(secondOperandWait===true){
+				Calculator.displayUserInput= digit;
+				Calculator.secondOperandWait = false;
+			}
+			  else{
+			  	Calculator.displayUserInput= displayUserInput ==="0" ? digit : displayUserInput + digit;
+			  }
+			  
+			  updateDisplay()
+			  console.log(Calculator);
+			/*var {displayUserInput} = Calculator;
+			Calculator.displayUserInput = displayUserInput === "0" ? digit : displayUserInput + digit;*/
+		}
+		
+
+		function inputDecimal(dot){ 
+			if(!Calculator.displayUserInput.includes(dot)){
+				Calculator.displayUserInput += dot;
+			}
+
+			if(Calculator.secondOperandWait===true){
+				Calculator.displayUserInput = "0."
+				Calculator.secondOperandWait = false;
+				return
+			}
+
+		}
+		console.log(Calculator);
+
+		function inputOperation(nextOperation){
+			var { firstOperandStore, displayUserInput, operation} = Calculator
+			var inputValue = parseFloat(displayUserInput);
+
+			if(operation && Calculator.secondOperandWait){ //This overrides an operator by
+														    //changing it before evaluation
+			 	Calculator.operation = nextOperation;
+			 	console.log(Calculator);
+			 	return;
+			 }
+
+			if(firstOperandStore === null && !isNaN(inputValue)){ Calculator.firstOperandStore=inputValue
+			}
+
+			  else if (operation){
+			  	var result = evaluate(firstOperandStore, inputValue, operation);
+			  	//Calculator.displayUserInput= String(result);
+			  	Calculator.displayUserInput=`${parseFloat(result.toFixed(7))}`;
+			  	Calculator.firstOperandStore= result;
+			  }
+
+			 
+
+			Calculator.secondOperandWait = true;
+			Calculator.operation = nextOperation;
+
+			console.log(Calculator);
+		}
+		
+
+		function evaluate(firstOperandStore, secondOperandWait, operation){ 
+			if(operation === "+"){
+				return firstOperandStore + secondOperandWait;
+			}
+			 else if (operation === "-"){ 
+			    return firstOperandStore - secondOperandWait;
+			 }
+			 else if (operation === "*"){ 
+			    return firstOperandStore * secondOperandWait;
+			 }
+			 else if (operation === "/"){ 
+			    return firstOperandStore / secondOperandWait;
+			 }
+
+			 return secondOperandWait;
+		}
+
+		function clearAll(){
+			Calculator.displayUserInput = "0";
+			Calculator.firstOperandStore = null;
+			Calculator.secondOperandWait = false;
+			Calculator.operation = null;
+			console.log(Calculator);
+		}
+
+		function removeLast(){
+
+			Calculator.displayUserInput = Calculator.displayUserInput.toString().slice(0,-1);
+			console.log(Calculator);
+			return;
+		}
+			
+		
+
+
+	</script>
+	
+
+</body>
+</html>
